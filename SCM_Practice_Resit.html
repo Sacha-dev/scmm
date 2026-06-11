@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BK2110 SCM — Practice Resit (June 2026)</title>
+<style>
+:root{--bg:#0a0e1a;--bg2:#111827;--bg3:#1a2236;--bg4:#232d42;--text:#e2e8f0;--text2:#94a3b8;--accent:#60a5fa;--green:#34d399;--red:#f87171;--yellow:#fbbf24;--purple:#a78bfa;--border:#2d3748;--correct:#0b3d2e;--incorrect:#4a1414;--radius:10px}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;line-height:1.55}
+.topbar{position:sticky;top:0;z-index:50;background:rgba(17,24,39,.95);backdrop-filter:blur(8px);border-bottom:1px solid var(--border);padding:.7rem 1.2rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap}
+.topbar h1{font-size:1.05rem;background:linear-gradient(135deg,var(--accent),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;white-space:nowrap}
+.chip{background:var(--bg3);border:1px solid var(--border);border-radius:20px;padding:.25rem .8rem;font-size:.8rem;color:var(--text2)}
+.chip b{color:var(--text)}
+#timerChip.warn{border-color:var(--red);color:var(--red)}
+.tabs{display:flex;gap:.2rem;margin-left:auto}
+.tab{padding:.45rem 1rem;border-radius:8px;cursor:pointer;font-size:.85rem;color:var(--text2);border:1px solid transparent}
+.tab:hover{background:var(--bg3);color:var(--text)}
+.tab.active{background:var(--bg3);color:var(--accent);border-color:var(--border)}
+.wrap{max-width:880px;margin:0 auto;padding:1.4rem 1rem 4rem}
+.notice{background:var(--bg2);border:1px solid var(--border);border-left:4px solid var(--accent);border-radius:var(--radius);padding:1rem 1.2rem;margin-bottom:1.2rem;font-size:.92rem;color:var(--text2)}
+.notice b{color:var(--text)}
+button.btn{background:var(--accent);color:#06101f;font-weight:700;border:none;border-radius:8px;padding:.55rem 1.2rem;cursor:pointer;font-size:.9rem}
+button.btn.sec{background:var(--bg4);color:var(--text);border:1px solid var(--border)}
+button.btn:hover{opacity:.9}
+.q{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:1.1rem 1.2rem;margin-bottom:1.1rem}
+.qhead{display:flex;gap:.6rem;align-items:center;margin-bottom:.55rem;flex-wrap:wrap}
+.qnr{font-weight:800;color:var(--accent)}
+.pts{font-size:.72rem;color:var(--text2);border:1px solid var(--border);border-radius:12px;padding:1px 8px}
+.topic{font-size:.72rem;font-weight:700;border-radius:12px;padding:1px 8px;text-transform:uppercase;letter-spacing:.04em}
+.t-fc{background:#1e3a5f;color:#8ec5ff}.t-inv{background:#0b3d2e;color:#6ee7b7}.t-net{background:#3b2a12;color:#fcd34d}.t-con{background:#3b1f6e;color:#c4b5fd}.t-pro{background:#43141f;color:#fda4af}.t-int{background:#0e3a3f;color:#67e8f9}
+.qtext{margin-bottom:.7rem}
+.qtext table{border-collapse:collapse;margin:.6rem 0;font-size:.9rem}
+.qtext th{background:var(--bg4);color:var(--accent)}
+.qtext th,.qtext td{border:1px solid var(--border);padding:.35rem .7rem;text-align:center}
+.opt{display:block;width:100%;text-align:left;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:.55rem .8rem;margin:.35rem 0;cursor:pointer;color:var(--text);font-size:.92rem;font-family:inherit}
+.opt:hover{border-color:var(--accent)}
+.opt.correct{background:var(--correct);border-color:var(--green)}
+.opt.incorrect{background:var(--incorrect);border-color:var(--red)}
+.opt.dim{opacity:.55;cursor:default}
+.expl{display:none;margin-top:.7rem;background:var(--bg3);border:1px solid var(--green);border-radius:8px;padding:.7rem .9rem;font-size:.88rem;color:var(--text2)}
+.expl b{color:var(--green)}
+.case{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:.8rem 1rem;margin-bottom:.8rem;font-size:.93rem}
+textarea{width:100%;min-height:90px;background:var(--bg);color:var(--text);border:1px solid var(--border);border-radius:8px;padding:.6rem;font-family:inherit;font-size:.9rem;margin:.4rem 0}
+.model{display:none;margin-top:.6rem;background:var(--bg3);border:1px solid var(--green);border-radius:8px;padding:.8rem 1rem;font-size:.9rem}
+.model h4{color:var(--green);margin-bottom:.4rem}
+.rubric{margin-top:.6rem;border-top:1px dashed var(--border);padding-top:.5rem}
+.rubric label{display:flex;gap:.5rem;align-items:flex-start;font-size:.85rem;color:var(--text2);margin:.25rem 0;cursor:pointer}
+.rubric input{margin-top:3px;accent-color:var(--green)}
+.fsec h3{color:var(--accent);margin:1.1rem 0 .4rem;font-size:1rem}
+.frow{display:flex;gap:.8rem;align-items:flex-start;background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:.55rem .8rem;margin:.4rem 0}
+.fnum{flex:0 0 auto;background:#1a2c4e;color:#9fc3ff;font-weight:800;border-radius:6px;padding:.1rem .5rem;font-size:.8rem;margin-top:2px}
+.fbody{font-size:.95rem}
+.fnote{font-size:.78rem;color:var(--text2);margin-top:2px}
+.ztab{border-collapse:collapse;margin:.5rem 0}
+.ztab th,.ztab td{border:1px solid var(--border);padding:.3rem .8rem;text-align:center;font-size:.88rem}
+.ztab th{background:var(--bg4);color:var(--accent)}
+.scorebox{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:1.4rem;text-align:center;margin-bottom:1.2rem}
+.scorebox .big{font-size:2.6rem;font-weight:800;background:linear-gradient(135deg,var(--green),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.bar{height:10px;background:var(--bg4);border-radius:6px;overflow:hidden;margin:.25rem 0 .8rem}
+.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--accent),var(--green))}
+.tline{display:flex;justify-content:space-between;font-size:.88rem;color:var(--text2);margin-top:.5rem}
+/* ---- HTML math ---- */
+.m{font-family:Cambria,'Times New Roman',serif;font-style:italic;white-space:nowrap}
+.m b{font-style:normal}
+sup,sub{font-size:.72em}
+.fr{display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;margin:0 .15em}
+.fr>span{display:block;padding:0 .25em}
+.fr>span:first-child{border-bottom:1.2px solid currentColor}
+.fr>span:last-child{padding-top:1px}
+.sq{display:inline-block;white-space:nowrap}
+.sq::before{content:"√";font-style:normal}
+.sq>span{border-top:1.2px solid currentColor;padding:0 .15em}
+.dmath{display:block;text-align:center;margin:.5rem 0;font-size:1.02em}
+.section-h{margin:1.6rem 0 .8rem;color:var(--accent);font-size:1.05rem;border-bottom:1px solid var(--border);padding-bottom:.3rem}
+@media print{.topbar,.btn{display:none}}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <h1>BK2110 SCM — Practice Resit</h1>
+  <span class="chip" id="timerChip">⏱ <b id="timer">2:30:00</b></span>
+  <button class="btn sec" id="timerBtn" onclick="toggleTimer()">Start</button>
+  <span class="chip">MC: <b id="mcScore">0</b>/60</span>
+  <span class="chip">Open: <b id="openScore">0</b>/20</span>
+  <div class="tabs">
+    <div class="tab active" data-tab="exam" onclick="showTab('exam')">Exam</div>
+    <div class="tab" data-tab="sheet" onclick="showTab('sheet')">Formula sheet</div>
+    <div class="tab" data-tab="results" onclick="showTab('results')">Results</div>
+  </div>
+</div>
+
+<div class="wrap">
+<!-- ================= EXAM TAB ================= -->
+<div id="tab-exam">
+  <div class="notice">
+    <b>Instructions (read like it's the real thing).</b> 30 multiple-choice questions à 2 pts (no partial credit — never leave one open, guess chance is 25%) + 3 open cases (20 pts). Recommended time: <b>2 h 30 min</b>. Use only the <b>Formula sheet</b> tab — exactly what you get tomorrow. Click an option to lock in your answer and see the model explanation. For open questions: write your full answer first (4 steps: formula number → parameters → substitution → final answer), then reveal the model answer and score yourself honestly with the rubric.
+  </div>
+  <div id="mcArea"></div>
+  <div id="openArea"></div>
+</div>
+
+<!-- ================= FORMULA SHEET TAB ================= -->
+<div id="tab-sheet" style="display:none">
+  <div class="notice"><b>Official formula sheet (reconstruction).</b> Same numbering as the sheet you get at the exam — quote these numbers in open answers ("using formula [11]…").</div>
+  <div id="sheetArea" class="fsec"></div>
+</div>
+
+<!-- ================= RESULTS TAB ================= -->
+<div id="tab-results" style="display:none">
+  <div class="scorebox">
+    <div style="color:var(--text2);font-size:.9rem">Total score</div>
+    <div class="big" id="totScore">0 / 80</div>
+    <div id="grade" style="color:var(--text2);margin-top:.3rem">—</div>
+  </div>
+  <div class="q"><b style="color:var(--accent)">Per-topic breakdown (MC)</b><div id="topicArea" style="margin-top:.8rem"></div></div>
+  <div class="q"><b style="color:var(--accent)">Review list</b><div id="reviewArea" style="margin-top:.6rem;font-size:.9rem;color:var(--text2)">Answer questions to populate this list.</div></div>
+</div>
+</div>
+
+<script>
+"use strict";
+/* ---------- tiny math helpers (HTML, offline, real notation) ---------- */
+function v(s){return '<span class="m">'+s+'</span>';}            // italic math span
+function fr(a,b){return '<span class="fr"><span>'+a+'</span><span>'+b+'</span></span>';}
+function sq(x){return '<span class="sq"><span>'+x+'</span></span>';}
+var TIMES=' × ', MINUS=' − ', APPROX=' ≈ ', LEQ=' ≤ ', GEQ=' ≥ ', RARR=' → ', SIG='σ', MU='μ', ALPHA='α', PHI='Φ', SUM='Σ';
+
+/* =====================================================
+   MULTIPLE CHOICE — 30 questions, 2 pts each
+   topic codes: fc forecast, inv inventory, net network, con contracts, pro procurement, int integration
+===================================================== */
+var MC=[
+{topic:'fc',q:'For a certain product the actual demand and the forecast were:'+
+ '<table><tr><th>Period</th><th>Actual demand</th><th>Forecast</th></tr><tr><td>1</td><td>150</td><td>160</td></tr><tr><td>2</td><td>180</td><td>170</td></tr><tr><td>3</td><td>140</td><td>160</td></tr><tr><td>4</td><td>130</td><td>120</td></tr></table>What is the MAD (Mean Absolute Deviation)?',
+ opts:['10.0','12.5','15.0','50.0'],correct:1,
+ expl:'Absolute errors: |150−160| = 10, |180−170| = 10, |140−160| = 20, |130−120| = 10. Formula [3]: MAD = (10+10+20+10)/4 = 50/4 = <b>12.5</b>. Option D (50) is the <i>sum</i> of errors — always divide by the number of periods. This is the same drill as this year’s MAD question (answer 11.25).'},
+{topic:'fc',q:'A company forecasts demand with exponential smoothing, '+v(ALPHA)+' = 0.3. Data:'+
+ '<table><tr><th>Period</th><th>Actual demand</th><th>Forecast</th></tr><tr><td>1</td><td>200</td><td>200</td></tr><tr><td>2</td><td>240</td><td>&nbsp;</td></tr><tr><td>3</td><td>220</td><td>&nbsp;</td></tr><tr><td>4</td><td>&nbsp;</td><td>?</td></tr></table>Which statement about '+v('F<sub>4</sub>')+', the forecast for period 4, is correct?',
+ opts:[v('F<sub>4</sub>')+' lies in the interval [208, 212)',v('F<sub>4</sub>')+' lies in the interval [212, 215]',v('F<sub>4</sub>')+' lies outside the interval [208, 216]',v('F<sub>4</sub>')+' cannot be computed, because the forecasts for periods 2 and 3 are missing'],correct:1,
+ expl:'Chain it yourself from '+v('F<sub>1</sub> = D<sub>1</sub>')+' (formula [2]): '+v('F<sub>2</sub>')+' = 200 + 0.3(200−200) = 200; '+v('F<sub>3</sub>')+' = 200 + 0.3(240−200) = 212; '+v('F<sub>4</sub>')+' = 212 + 0.3(220−212) = <b>214.4</b> → in [212, 215]. “F₂ and F₃ are missing” is the standing trap — you always compute them yourself. (This year: F₄ = 111.2 with '+v(ALPHA)+' = 0.4.)'},
+{topic:'fc',q:'A wholesaler wants to compare forecast accuracy between <b>USB cables</b> (≈ €2, thousands sold per week) and <b>forklift trucks</b> (≈ €40,000, a few sold per year). Which error measure is most suitable for this comparison?',
+ opts:['MAD (Mean Absolute Deviation)','MSE (Mean Squared Error)','MAPE (Mean Absolute Percentage Error)','All three measures are equally suitable'],correct:2,
+ expl:'<b>MAPE</b> is the only <i>relative</i> measure (error as % of actual demand, formula [5]) and is therefore scale-independent. MAD and MSE are absolute: an error of “3 units” means something completely different for cables vs forklifts. “All three equally suitable” was the distractor you fell for this year — don’t donate those 2 points again.'},
+{topic:'fc',q:'Forecasting methods X and Y are evaluated on the same time series:<br>• Method X: MAD = 12 and MSE = 260<br>• Method Y: MAD = 14 and MSE = 230<br>Which statement is correct?',
+ opts:['Method X is better than Method Y','Method Y is better than Method X','Which method is better depends on which error measure you find more important','This example must contain an error: MAD and MSE always point to the same best method'],correct:2,
+ expl:'X wins on MAD, Y wins on MSE — perfectly possible, because MSE <b>squares</b> errors and so punishes large outliers extra hard (Y apparently avoids big misses; X is better on average). So the honest answer: it depends which property you value. Identical logic to this year’s question.'},
+{topic:'fc',q:'Quarterly ice-cream demand over three years: summers 240, 260, 250 and winters 110, 120, 130. What is the seasonal index for <b>winter</b>?',
+ opts:['0.53','0.48','1.11','1.88'],correct:0,
+ expl:'Winter average = (110+120+130)/3 = 120. Overall average = (240+260+250+110+120+130)/6 = 1350/6 = 225. SI = 120/225 = <b>0.533</b>. Distractors: 0.48 divides by the summer average (120/250); 1.11 is the <i>summer</i> index (250/225); 1.88 is the inverse (225/120). Seasonal index was NOT on this year’s exam — prime resit material (it was in the Canvas set).'},
+{topic:'inv',q:'A retailer sells 2,500 units per year of a product with a purchase price of €10 per unit. Fixed ordering costs are €36 per order; holding costs are <b>20% of the purchase price</b> per unit per year. What is the optimal order quantity (EOQ)?',
+ opts:['300 units','949 units','134 units','671 units'],correct:0,
+ expl:'First convert: '+v('h')+' = 0.20 × €10 = <b>€2</b> per unit-year. Formula [7]: '+v('Q*')+' = '+sq('2 × 2500 × 36 / 2')+' = '+sq('90,000')+' = <b>300</b>. Distractor 949 plugs in h = 0.2; 134 plugs in h = 10 (the price). The %-holding-cost conversion is THE classic EOQ trap (Canvas Q5: 650 units, same move).'},
+{topic:'inv',q:'A planner accidentally orders <b>half</b> of the optimal EOQ quantity ('+v('Q*')+'/2) every cycle. Compared with ordering '+v('Q*')+', the total relevant (ordering + holding) costs are approximately:',
+ opts:['100% higher','50% higher','25% higher','12.5% higher'],correct:2,
+ expl:'Formula [8]: '+v('C(Q′)/C(Q*)')+' = ½('+v('Q′/Q*')+' + '+v('Q*/Q′')+') = ½(½ + 2) = <b>1.25</b> → +25%. Same number as this year’s “twice Q*” version — the EOQ cost curve is flat and symmetric (in the ratio) around the optimum. That robustness is exactly why EOQ survives in practice.'},
+{topic:'inv',q:'A warehouse runs a modern WMS that tracks inventory <b>continuously</b>. Demand is stochastic and every order triggers <b>significant fixed ordering costs</b>. Which inventory policy fits this situation best?',
+ opts:['EOQ','(s,S)','(R,Q)','(S−1,S)'],correct:2,
+ expl:'Continuous review + fixed order costs → <b>(R,Q)</b>: when inventory hits R, order the fixed quantity Q. (s,S) is the <i>periodic</i>-review policy with order costs (this year’s correct answer for “can only order once per month”); (S−1,S) assumes negligible order costs; EOQ assumes deterministic demand.'},
+{topic:'inv',q:'An airline stocks an <b>expensive spare part</b> with very low, sporadic demand (a few units per year). Ordering costs are negligible and the stock position is reviewed periodically. Which policy fits best?',
+ opts:['(R,Q)','EOQ','(s,S)','(S−1,S)'],correct:3,
+ expl:'<b>(S−1,S)</b> (base-stock): every demand immediately triggers a replenishment back up to S — sensible exactly when order costs are ≈ 0 and items are expensive/slow-moving. This is the mirror image of this year’s policy question, where (S−1,S) was the wrong answer because there WERE fixed order costs.'},
+{topic:'inv',q:'Weekly demand for a product is normally distributed with mean 200 and standard deviation 50. The replenishment lead time is 4 weeks (deterministic). The distributor sets the reorder point R = 900. Which statement about the Cycle Service Level (CSL) is correct?',
+ opts:['The CSL lies between 0.75 and 0.80','The CSL lies between 0.80 and 0.85','The CSL lies between 0.85 and 0.90','The CSL lies between 0.90 and 0.98'],correct:1,
+ expl:'Demand over the lead time: mean = 200×4 = 800, '+SIG+' = 50'+sq('4')+' = 100 (st. dev. scales with '+sq('time')+'!). '+v('z')+' = (900−800)/100 = 1.0 → '+PHI+'(1.0) = <b>0.8413</b> → between 0.80 and 0.85. Identical mechanics to this year’s Q (z = 1.0). If you picked 0.85–0.90 again: the table value at z = 1.0 is 0.8413, not 0.86.'},
+{topic:'inv',q:'A bakery sells fresh celebration cakes for €15; production cost is €10. Leftover cakes are sold to staff for €2 at closing time. Demand is normally distributed. The owner claims: <i>“If demand becomes more uncertain (higher '+SIG+'), my optimal production quantity stays equal to average demand.”</i> Which statement is correct?',
+ opts:['The claim is correct','The claim is wrong: the optimal quantity will increase','The claim is wrong: the optimal quantity will decrease','Nothing can be said without knowing the exact demand distribution'],correct:2,
+ expl:v('C<sub>u</sub>')+' = 15−10 = 5; '+v('C<sub>o</sub>')+' = 10−2 = 8; CR = 5/13 = <b>0.385 &lt; 0.5</b> → '+v('z')+' is <b>negative</b> → '+v('Q* = '+MU+' + z'+SIG)+' lies <i>below</i> the mean, and a larger '+SIG+' pushes it further <b>down</b>. This is the mirror of this year’s Christmas-sweater question (CR = 0.71 → Q* grows). The resit loves flipping the CR to the other side of 0.5 — always compute CR first, then reason about z.'},
+{topic:'inv',q:'A company maintains a Cycle Service Level (CSL) of 95% while customers place <b>large orders</b>. Which statement is correct?',
+ opts:['The Fill Rate is then at least 95%','The probability of a stockout is 5% per customer order','The Fill Rate can be significantly lower than 95%','CSL and Fill Rate are two names for the same measure'],correct:2,
+ expl:'CSL = probability of <b>no stockout per replenishment cycle</b> (a 0/1 event). Fill Rate = <b>fraction of demanded units</b> served from stock (formula [12]: FR = 1 − ESC/Q). With large customer orders one stockout can miss a big chunk of demand, so <b>FR ≪ CSL is possible</b>. Word-for-word the concept you missed this year — make this distinction reflexive.'},
+{topic:'inv',q:'A firm uses an (R,Q) policy with Q = 400. The safety stock is 150 units. What is the (approximate) average on-hand inventory?',
+ opts:['350 units','550 units','200 units','275 units'],correct:0,
+ expl:'Formula [15]: average inventory = cycle stock + safety stock = '+v('Q')+'/2 + SS = 400/2 + 150 = <b>350</b>. Distractor 550 forgets to halve Q. This formula was tested on the parallel English exam (482.2 → 483) but NOT in your sitting — expect it.'},
+{topic:'inv',q:'At every “drop” of a hyped sneaker, the store manager personally faces angry customers when stock runs out — while unsold pairs are quietly discounted in January without anyone complaining. According to the behavioural inventory literature, this manager will tend to:',
+ opts:['order systematically too much (stock-out bias)','order systematically too little (waste aversion)','order exactly the newsvendor optimum out of fear of both errors','alternate between extremes (anchoring)'],correct:0,
+ expl:'<b>Stock-out bias</b>: stockouts are visible and personally painful, leftovers are silent — so managers over-weight underage and <b>order too much</b>. For limited editions this is doubly wrong because scarcity itself supports brand value. Same idea as this year’s strong-brand question.'},
+{topic:'net',q:'Four candidate DC locations have the following cost structures:'+
+ '<table><tr><th>Location</th><th>Fixed cost (€/yr)</th><th>Variable cost (€/unit)</th></tr><tr><td>P</td><td>900,000</td><td>22</td></tr><tr><td>Q</td><td>900,000</td><td>19</td></tr><tr><td>R</td><td>700,000</td><td>26</td></tr><tr><td>S</td><td>1,100,000</td><td>16</td></tr></table>Which statement is correct?',
+ opts:['P can be discarded immediately without any calculation, and R is only optimal at small volumes','P and R can both be discarded immediately without calculation','S is the best location for small volumes','None of the statements above is correct'],correct:0,
+ expl:'<b>Dominance first:</b> P has the same fixed cost as Q but higher variable cost → P can never win, discard without computing. R has the lowest fixed cost → wins at <b>small</b> volumes; S has the lowest variable cost → wins at <b>large</b> volumes. Identical structure to this year’s Almelo/Bolsward/Capelle/Deurne question (which you answered correctly — keep banking these).'},
+{topic:'net',q:'Two remaining locations: X (fixed €200,000, variable €50/unit) and Y (fixed €500,000, variable €30/unit). At which annual volume are the two locations equally expensive?',
+ opts:['15,000 units','35,000 units','10,000 units','6,000 units'],correct:0,
+ expl:'Break-even: 200,000 + 50'+v('V')+' = 500,000 + 30'+v('V')+' → 20'+v('V')+' = 300,000 → '+v('V')+' = <b>15,000</b>. Below it the low-fixed site (X) wins; above it the low-variable site (Y) wins. Be able to do this in 60 seconds.'},
+{topic:'net',q:'A retail chain computes its warehouse location with both the median (rectilinear) method and the center-of-gravity (Euclidean) method. One customer then <b>relocates much further away</b> (same demand weight). Which statement is correct?',
+ opts:['Both solutions shift toward the customer','The center of gravity shifts toward the customer; the median solution may stay exactly where it was','The median solution shifts; the center of gravity is unaffected','Neither solution changes, because the weights did not change'],correct:1,
+ expl:'The CoG (formulas [25]/[26]) is a weighted <i>average</i> — every coordinate change moves it. The median method only uses the <b>ordering</b> of coordinates and cumulative weights: if the customer keeps the same rank (e.g. stays the most-eastern point), the median is <b>unchanged</b>. Exactly this year’s open question 33c (B → (20, 0.5): median stayed (7,6)).'},
+{topic:'net',q:'In a hybrid location analysis (critical, objective and subjective factors), location K scores best on costs (OFM = 1) and best on all subjective factors, but fails <b>one critical factor</b> (score 0). What is the consequence?',
+ opts:['K can still win if the weight α of the objective factors is high enough','K’s location measure is 0: K is eliminated regardless of all other scores','K’s location measure is halved as a penalty','Only K’s subjective component is set to 0'],correct:1,
+ expl:'Formula [24]: LM = <b>CFM ×</b> (α·OFM + (1−α)·SFM) and CFM is the <b>product</b> of 0/1 critical scores (formula [21]) — one zero makes CFM = 0, so LM = 0. Critical factors are absolute knock-outs. The English main exam tested this logic (location E) — your version didn’t. Expect a full LM computation on the resit.'},
+{topic:'con',q:'A manufacturer proposes a coordination scheme to its retailer that demonstrably <b>increases total supply-chain profit</b>. Why might the retailer still refuse?',
+ opts:['Because global optimization always lowers the retailer’s service level','Because a larger total profit gives no guarantee that the retailer’s own share improves, without an agreement on how the profit is divided','Because in a make-to-order chain the retailer already bears no risk','Because coordination requires sharing all cost information by law'],correct:1,
+ expl:'Global optimization grows the <b>pie</b>, but says nothing about the <b>split</b>. Without a transfer mechanism (fee, buy-back, revenue share…) a party can end up worse off. This year’s version asked it from the manufacturer’s side — same answer.'},
+{topic:'con',q:'In a wholesale-price contract the retailer typically orders <b>less</b> than the supply-chain-optimal quantity. The root cause is:',
+ opts:['the retailer optimizes against his own margin ('+v('p − w')+'), which is smaller than the chain margin ('+v('p − c')+')','a lack of trust between retailer and manufacturer','the manufacturer’s production costs are too high','retailers systematically underestimate demand'],correct:0,
+ expl:'<b>Double marginalization</b>: with '+v('w &gt; c')+' the retailer’s '+v('C<sub>u</sub>')+' = '+v('p − w')+' is smaller, so his critical ratio and thus his Q are below the chain optimum. “Lack of trust” was this year’s tempting-but-wrong option (you picked it) — the mechanism is a <i>pricing incentive</i>, not psychology.'},
+{topic:'con',q:'Setting the wholesale price equal to marginal production cost ('+v('w = c')+') coordinates the chain in theory, but is not used in practice as a stand-alone contract because:',
+ opts:['the retailer would then order too much','the manufacturer makes zero profit and so has no incentive to sign','it violates competition law','it only works for make-to-stock chains'],correct:1,
+ expl:'At '+v('w = c')+' the retailer faces the chain’s true economics and orders the SC-optimal Q — but the manufacturer sells at cost and earns <b>nothing</b>. Fix: the <b>two-part tariff</b> — keep '+v('w = c')+' and add a fixed fee F that only <i>divides</i> the profit (F has nothing to do with the manufacturer’s fixed costs). Both halves were separate questions this year.'},
+{topic:'con',q:'Which pairing of contract types with supply-chain settings is correct?',
+ opts:['Buy-back & revenue-sharing: make-to-order (retailer bears risk); pay-back & cost-sharing: make-to-stock (manufacturer bears risk)','Buy-back & pay-back: make-to-stock; revenue-sharing & cost-sharing: make-to-order','All four contract types require a make-to-stock setting','Pay-back & cost-sharing: make-to-order; buy-back & revenue-sharing: make-to-stock'],correct:0,
+ expl:'<b>MTO</b>: the retailer commits before demand is known → he bears the risk → contracts that relieve <i>his</i> downside: buy-back, revenue-sharing (also quantity-flexibility, sales rebate). <b>MTS</b>: the manufacturer produces before orders → he bears the risk → the retailer relieves him via <b>pay-back</b> and <b>cost-sharing</b>. The EN answer sheet stated this mapping verbatim; no calculations on these two, but the mapping itself is fair game.'},
+{topic:'con',q:'Under a buy-back contract the retailer orders <b>more</b> than under a plain wholesale contract with the same '+v('w')+'. The direct mechanism is that the buy-back price '+v('b')+':',
+ opts:['raises the retailer’s underage cost '+v('C<sub>u</sub>'),'lowers the retailer’s overage cost to '+v('C<sub>o</sub> = w − b')+', which raises the critical ratio','lowers the retail price '+v('p'),'transfers all demand risk to the customer'],correct:1,
+ expl:'Unsold units are returned at '+v('b')+', so a leftover only costs '+v('w − b')+' instead of '+v('w − v')+'. Lower '+v('C<sub>o</sub>')+' → higher CR = '+v('C<sub>u</sub>')+'/('+v('C<sub>u</sub>')+'+'+v('C<sub>o</sub>')+') → higher Q*. In this year’s open case: buy-back CR 0.625 vs revenue-sharing 0.571 — buy-back ordered more.'},
+{topic:'pro',q:'A machine builder buys a niche sensor: low annual spend, but only <b>one qualified supplier</b> worldwide and long qualification times. In the Kraljic matrix this item is a <b>bottleneck</b> item. The textbook purchasing strategy is:',
+ opts:['competitive bidding among many suppliers to cut price','secure supply: safety stock, contractual guarantees and actively developing alternative sources — price is secondary','immediately outsource the entire module','annual e-auctions to keep the supplier sharp'],correct:1,
+ expl:'Bottleneck = high supply risk, low profit impact → <b>assurance of supply first</b>. Competitive bidding is the <i>leverage</i>-quadrant strategy (low risk, high impact — this year’s correct answer). Know all four quadrant strategies; the resit can rotate the quadrant.'},
+{topic:'pro',q:'Outsourcing production can improve a firm’s Return on Capital (ROC) primarily because:',
+ opts:['outsourcing always lowers purchase prices','revenue rises immediately after outsourcing','invested capital (plants, machines, inventories) leaves the balance sheet, so the denominator shrinks even at equal profit','outsourcing eliminates supply risk'],correct:2,
+ expl:'ROC = profit / invested capital. Outsourcing shifts assets to the supplier → smaller capital base → higher ROC <b>even with flat profit</b>. It certainly does not eliminate supply risk — it adds dependency (hold-up), knowledge-stickiness and hollow-corporation risks. Same as this year (you had it right — 2 easy points, collect them again).'},
+{topic:'pro',q:'Which combination of circumstances supports the decision to <b>outsource</b> a component most strongly?',
+ opts:['Component is critical to customers, low clockspeed, and the firm has a strong competitive position in it','Component is unimportant to customers, but rests on deep tacit knowledge inside the firm','Component is unimportant to customers, technology changes fast (high clockspeed), capable suppliers exist, and the firm struggles to make it well','Component is critical to customers and no capable suppliers exist'],correct:2,
+ expl:'Outsource what is <b>not customer-differentiating</b>, where <b>technology races</b> (investing yourself is risky), where <b>capable suppliers</b> exist and where you are <b>not great</b> at it. Tacit knowledge is a reason to keep things <i>inside</i> (it can’t be transferred well). You picked the keep-in-house profile this year — that’s the exact inversion.'},
+{topic:'int',q:'After a canal blockage halted supply for weeks, a firm adds a second (more expensive) supplier on another continent and a regional buffer stock. Costs rise. Which trade-off is this primarily?',
+ opts:['Efficiency versus responsiveness','Efficiency versus resilience','Responsiveness versus sustainability','Sustainability versus efficiency'],correct:1,
+ expl:'Buffers against <b>disruptions</b> (dual sourcing, disruption stock) = <b>resilience</b>, bought at the price of efficiency. Responsiveness is about reacting to demand <i>fluctuations</i>, not disruption events — exactly the distinction you missed this year.'},
+{topic:'int',q:'A distribution centre observes that the <b>orders it receives from retailers</b> fluctuate far more wildly than the <b>point-of-sale demand</b> at those same retailers. Which of the following is NOT a cause of this phenomenon?',
+ opts:['Retailers batch their orders into large, infrequent orders','Promotions trigger forward buying','Retailers inflate orders during shortages (shortage gaming)','Retailers share their POS data with the DC'],correct:3,
+ expl:'The phenomenon is the <b>bullwhip effect</b> (order variability amplifies upstream). Causes: forecasting on orders instead of end-demand, long lead times, order batching, price promotions/forward buying, shortage gaming. <b>Sharing POS data is a remedy</b>, not a cause (with lead-time reduction, EDLP and VMI). Bullwhip was absent from your exam version — a very likely resit guest.'},
+{topic:'int',q:'Which situation justifies applying <b>postponement</b> (delayed differentiation) in manufacturing most strongly?',
+ opts:['High demand uncertainty and high product variety','Low demand uncertainty and few product variants','Low margins and stable demand','Strong economies of scale in production'],correct:0,
+ expl:'Postpone the variant-specific step until demand information arrives — valuable precisely when there are <b>many variants</b> and <b>uncertain demand</b> (the generic/aggregate part is easier to forecast; needs a modular product). You inverted this one on the exam. Examples to recognise: Benetton dye-after-knit, HP DeskJet localisation at the DC, this year’s “move dyeing from Vietnam to Rotterdam” (higher production cost, fewer markdowns AND fewer stockouts).'},
+{topic:'int',q:'StroopCo sells classic stroopwafels: demand is stable and predictable, margins are thin, the product hardly changes. Yet StroopCo built a highly <b>responsive</b> supply chain: local flexible bakeries, air freight for export, lots of spare capacity. It is now losing money on logistics. According to Fisher’s framework, StroopCo’s core problem is:',
+ opts:['a mismatch: a functional product is being served by a (costly) responsive supply chain, where an efficient chain is required','too little product variety for a responsive chain','wrong market positioning of the brand','inaccurate demand forecasts'],correct:0,
+ expl:'Fisher: <b>functional</b> products (stable demand, long life cycle, low margin) need an <b>efficient</b>, cost-minimising chain; <b>innovative</b> products need a responsive one. This is the mirror image of this year’s RoffaStyle case (innovative product in an efficient chain → markdowns + stockouts). Mismatches go in BOTH directions — pay for flexibility only when uncertainty demands it.'}
+];
+
+/* =====================================================
+   OPEN QUESTIONS — 3 cases, 20 pts
+===================================================== */
+var OPEN=[
+{title:'Open case 1 — Inventory at FietsLicht BV (7 pts)',
+ intro:'FietsLicht BV sells bicycle lights. Annual demand is normally distributed with a mean of <b>7,200 units/year</b> and a standard deviation of <b>600 units/year</b>. The company operates <b>50 weeks per year</b>. The replenishment lead time is stochastic: on average <b>4 weeks</b>, with a standard deviation of <b>1 week</b>. FietsLicht uses an (R,Q) policy with <b>Q = 500</b> and targets a Cycle Service Level of <b>97%</b>.',
+ parts:[
+ {nr:'1a',pts:3,q:'Compute the reorder point R. Show your calculations.',
+  model:'<b>Step 1 — convert to weeks (the lead time unit):</b><br>AVG = 7,200/50 = <b>144 per week</b>; STD = 600/'+sq('50')+' = <b>84.85 per week</b> (standard deviations scale with '+sq('time')+', never linearly!). AVGL = 4 weeks, STDL = 1 week. CSL 97% → '+v('z')+' = 1.88–1.89 (take 1.89).<br><b>Step 2 — formula [11]:</b><div class="dmath">'+v('R')+' = AVG'+TIMES+'AVGL + '+v('z')+' '+sq('AVGL'+TIMES+'STD<sup>2</sup> + AVG<sup>2</sup>'+TIMES+'STDL<sup>2</sup>')+'</div><b>Step 3 — substitute:</b> 144×4 + 1.89'+sq('4×84.85<sup>2</sup> + 144<sup>2</sup>×1<sup>2</sup>')+' = 576 + 1.89'+sq('28,800 + 20,736')+' = 576 + 1.89 × 222.57<br><b>Step 4:</b> R = 576 + 420.7 = <b>996.7 → 997 units</b> (with z = 1.88: 994.4 → 995; both fine).',
+  rubric:[['Correct unit conversion: 144/week and 600/'+'√50 = 84.85 (NOT 600/50 = 12)',1],['Formula [11] incl. the lead-time-uncertainty term AVG²·STDL², with z = 1.88/1.89',1],['Correct computation: R ≈ 995–997',1]]},
+ {nr:'1b',pts:2,q:'Compute the safety stock and the average on-hand inventory. Show your calculations.',
+  model:'<b>Formula [14]:</b> SS = R − AVG×AVGL = 996.7 − 576 = <b>420.7 ≈ 421 units</b> (equivalently z×'+sq('…')+' = 1.89×222.57).<br><b>Formula [15]:</b> average on-hand = Q/2 + SS = 500/2 + 420.7 = <b>670.7 ≈ 671 units</b>.<br>Note: Q matters for the <i>average inventory</i>, not for the safety stock.',
+  rubric:[['SS via [14] ≈ 420–421',1],['Average inventory via [15] = Q/2 + SS ≈ 670–671',1]]},
+ {nr:'1c',pts:2,q:'The supplier offers a guaranteed (deterministic) lead time of exactly 4 weeks, for a small fee. What happens to the safety stock? Support your answer with a short calculation or argument.',
+  model:'<b>It decreases.</b> Safety stock buffers two uncertainty sources: demand and lead time. With STDL = 0 the term AVG²×STDL² (= 20,736) disappears:<div class="dmath">SS = 1.89'+sq('4 × 84.85<sup>2</sup>')+' = 1.89 × 169.7 = <b>320.7</b></div>i.e. ≈ 100 units (~24%) less than 420.7. Less uncertainty → less buffer. (This year’s 31b asked exactly this, qualitatively.)',
+  rubric:[['Safety stock decreases',1],['Correct reason (lead-time uncertainty term vanishes) or correct recomputation ≈ 321',1]]}]},
+{title:'Open case 2 — Supply contracts at GlowGear (7 pts)',
+ intro:'Retailer <b>GlowGear</b> sells LED party glasses for <b>p = €25</b>. The manufacturer’s production cost is <b>c = €7</b> per unit; unsold units have a salvage value of <b>v = €4</b>. GlowGear currently buys at a wholesale price <b>w = €15</b> (plain wholesale contract). Demand for the season is stochastic. Use the newsvendor logic for all parts.',
+ parts:[
+ {nr:'2a',pts:2,q:'Compute the critical ratio for the supply chain as a whole.',
+  model:'For the integrated chain only real economics count (production cost and salvage, NOT the internal transfer price w):<br>'+v('C<sub>u</sub>')+' = p − c = 25 − 7 = <b>18</b>; '+v('C<sub>o</sub>')+' = c − v = 7 − 4 = <b>3</b>.<div class="dmath">CR<sub>SC</sub> = '+fr('18','18 + 3')+' = '+fr('18','21')+' = <b>0.857</b></div>',
+  rubric:[['Correct Cᵤ = 18 and Cₒ = 3 (uses c and v, not w)',1],['CR = 18/21 ≈ 0.857',1]]},
+ {nr:'2b',pts:2,q:'Compute the critical ratio for GlowGear under the current wholesale contract, and explain in one sentence what your two answers (2a vs 2b) demonstrate.',
+  model:v('C<sub>u</sub>')+' = p − w = 25 − 15 = <b>10</b>; '+v('C<sub>o</sub>')+' = w − v = 15 − 4 = <b>11</b>.<div class="dmath">CR<sub>retailer</sub> = '+fr('10','21')+' = <b>0.476</b></div>0.476 ≪ 0.857: the retailer orders far less than the chain optimum because he optimises against his own margin (p − w) instead of the chain margin (p − c) — <b>double marginalization</b> in numbers.',
+  rubric:[['CR = 10/21 ≈ 0.476 (Cₒ = w − v = 11)',1],['Names/explains double marginalization (retailer CR < chain CR → under-ordering)',1]]},
+ {nr:'2c',pts:3,q:'The manufacturer keeps w = €15 but offers to buy back unsold units at price b. Determine the buy-back price b that coordinates the supply chain (i.e. makes GlowGear order the chain-optimal quantity). Verify that this b is feasible.',
+  model:'<b>Coordination condition:</b> retailer CR = chain CR.<br>Under buy-back: '+v('C<sub>u</sub>')+' = 10 (unchanged); '+v('C<sub>o</sub>')+' = w − b = 15 − b.<div class="dmath">'+fr('10','10 + (15 − b)')+' = '+fr('18','21')+'</div>→ 10 + 15 − b = 10 × '+fr('21','18')+' = 11.667 → 25 − b = 11.667 → <b>b = €13.33</b>.<br><b>Feasibility:</b> v &lt; b &lt; w, i.e. 4 &lt; 13.33 &lt; 15 ✓ (the manufacturer must offer more than the salvage value but less than the wholesale price). With b = 13.33 GlowGear’s CR = 10/11.67 = 0.857 = chain CR — coordinated. (Same solve as Canvas Q20: b = 27.22, and as the EN main exam: b ≈ 67.)',
+  rubric:[['Sets retailer CR equal to chain CR with Cₒ = w − b',1],['Correct algebra → b ≈ €13.33',1],['Feasibility check v < b < w (4 < 13.33 < 15)',1]]}]},
+{title:'Open case 3 — Locating the BrewBros roastery (6 pts)',
+ intro:'BrewBros wants to open one central coffee roastery serving five cafés. Coordinates and weekly deliveries (each delivery = one full van):'+
+ '<table><tr><th>Café</th><th>x</th><th>y</th><th>Deliveries/week</th></tr><tr><td>A</td><td>2</td><td>9</td><td>150</td></tr><tr><td>B</td><td>6</td><td>1</td><td>250</td></tr><tr><td>C</td><td>8</td><td>7</td><td>100</td></tr><tr><td>D</td><td>12</td><td>4</td><td>300</td></tr><tr><td>E</td><td>5</td><td>12</td><td>200</td></tr></table>Total weight: 1,000 deliveries/week.',
+ parts:[
+ {nr:'3a',pts:2,q:'Determine the optimal location using the rectilinear (median) method.',
+  model:'Half the total weight = <b>500</b>. Work per axis with <b>cumulative weights</b> (not the plain middle coordinate!).<br><b>x sorted:</b> x=2 (A,150 → cum 150); x=5 (E,200 → cum 350); x=6 (B,250 → cum 600 ≥ 500) → <b>x* = 6</b>.<br><b>y sorted:</b> y=1 (B,250 → cum 250); y=4 (D,300 → cum 550 ≥ 500) → <b>y* = 4</b>.<br>Optimal location: <b>(6, 4)</b>.',
+  rubric:[['x* = 6 via cumulative weights',1],['y* = 4 via cumulative weights',1]]},
+ {nr:'3b',pts:2,q:'Determine the optimal location using the Euclidean (center-of-gravity) method.',
+  model:'Formulas [25]/[26]:<div class="dmath">x* = '+fr('2·150 + 6·250 + 8·100 + 12·300 + 5·200','1,000')+' = '+fr('7,200','1,000')+' = <b>7.2</b></div><div class="dmath">y* = '+fr('9·150 + 1·250 + 7·100 + 4·300 + 12·200','1,000')+' = '+fr('5,900','1,000')+' = <b>5.9</b></div>Optimal location: <b>(7.2, 5.9)</b>.',
+  rubric:[['x* = 7.2',1],['y* = 5.9',1]]},
+ {nr:'3c',pts:2,q:'Café D moves out of town to (40, 4), keeping 300 deliveries/week. How does the answer to 3a change, and how does the answer to 3b change? Explain briefly.',
+  model:'<b>Median (3a): unchanged at (6, 4).</b> D’s x (12 → 40) remains the <i>largest</i> x, so the sorted order and cumulative weights are identical; y does not change at all. The median method only reacts to changes in the <i>ordering</i>, not the distance — robust to outliers.<br><b>CoG (3b): shifts strongly east.</b> New x* = (300 + 1,500 + 800 + 12,000 + 1,000)/1,000 = <b>15.6</b> (y* stays 5.9). The weighted average is dragged by extreme coordinates.<br>Lesson (this year’s Q25 + 33c): <b>Euclidean/CoG is outlier-sensitive, the median method is not.</b>',
+  rubric:[['Median unchanged, with the ordering/cumulative-weight argument',1],['CoG shifts (ideally recomputed: x* = 15.6) with outlier-sensitivity explanation',1]]}]}
+];
+
+/* =====================================================
+   FORMULA SHEET (numbering = official sheet)
+===================================================== */
+var SHEET=[
+['Forecasting',[
+ ['1','Moving average: '+v('F<sub>t</sub>')+' = '+fr('sum of demand in previous '+v('n')+' periods',v('n')),'Lags behind; larger n = smoother but slower.'],
+ ['2','Exponential smoothing: '+v('F<sub>t</sub> = F<sub>t−1</sub> + '+ALPHA+'(D<sub>t−1</sub> − F<sub>t−1</sub>)'),'Start with F₁ = D₁. Higher α = more weight on recent demand.'],
+ ['3','MAD = '+fr(SUM+' |'+v('D<sub>i</sub> − F<sub>i</sub>')+'|',v('n')),'Absolute measure, same unit as demand.'],
+ ['4','MSE = '+fr(SUM+' ('+v('D<sub>i</sub> − F<sub>i</sub>')+')<sup>2</sup>',v('n')),'Squares errors → punishes outliers.'],
+ ['5','MAPE = '+fr('1',v('n'))+' '+SUM+' '+fr('|'+v('D<sub>i</sub> − F<sub>i</sub>')+'|',v('D<sub>i</sub>')),'Relative (%); divide by actual demand D, not by F.']]],
+['EOQ & Newsvendor',[
+ ['6','Total cost: '+v('C(Q)')+' = '+fr(v('D')+'·'+v('K'),v('Q'))+' + '+fr(v('h')+'·'+v('Q'),'2'),'Ordering + holding; optimum where the two are equal.'],
+ ['7',v('Q*')+' = '+sq(fr('2'+v('DK'),v('h'))),'If h is given as % of unit price: convert first!'],
+ ['8',fr(v('C(Q′)'),v('C(Q*)'))+' = '+fr('1','2')+'('+fr(v('Q′'),v('Q*'))+' + '+fr(v('Q*'),v('Q′'))+')','2×Q* or Q*/2 → +25%. Flat curve around the optimum.'],
+ ['9','Newsvendor: '+v('P(D ≤ Q*)')+' = '+fr(v('C<sub>u</sub>'),v('C<sub>u</sub> + C<sub>o</sub>'))+'; normal demand: '+v('Q* = '+MU+' + z'+SIG),'Cᵤ = p − c (+ goodwill s); Cₒ = c − v (destruction cost → v negative).'],
+ ['10','Profit = '+v('p')+'·min('+v('D,Q')+') + '+v('v')+'·max('+v('Q−D')+',0) − '+v('s')+'·max('+v('D−Q')+',0) − '+v('cQ')+' − '+v('K'),'Sales + salvage − goodwill − purchase − fixed.']]],
+['(R,Q) continuous review',[
+ ['11',v('R')+' = AVG×AVGL + '+v('z')+' '+sq('AVGL×STD<sup>2</sup> + AVG<sup>2</sup>×STDL<sup>2</sup>'),'Deterministic lead time: STDL = 0 → R = AVG·L + z·STD·'+'√L.'],
+ ['12','Fill rate: FR = 1 − '+fr('ESC',v('Q')),'Denominator = order quantity Q.'],
+ ['13','ESC = '+v('L(z)')+' '+sq('AVGL×STD<sup>2</sup> + AVG<sup>2</sup>×STDL<sup>2</sup>'),'L(z) from Table B (loss function).'],
+ ['14','SS = '+v('R')+' − AVG×AVGL','Safety stock does NOT depend on Q.'],
+ ['15','Average on-hand = '+fr(v('Q'),'2')+' + SS','Cycle stock + safety stock.']]],
+['(S−1,S) periodic review (review period r)',[
+ ['16',v('S')+' = AVG·(AVGL + '+v('r')+') + '+v('z')+' '+sq('(AVGL + '+v('r')+')×STD<sup>2</sup> + AVG<sup>2</sup>×STDL<sup>2</sup>'),'Protection interval = lead time + review period.'],
+ ['17','FR = 1 − '+fr('ESC','AVG·'+v('r')),'Denominator = demand per review period.'],
+ ['18','ESC = '+v('L(z)')+' '+sq('(AVGL + '+v('r')+')×STD<sup>2</sup> + AVG<sup>2</sup>×STDL<sup>2</sup>'),'Same root as [16].'],
+ ['19','SS = '+v('S')+' − AVG·(AVGL + '+v('r')+')','Analogous to [14].'],
+ ['20','Average inventory = '+fr(v('r')+'·AVG','2')+' + SS','Cycle stock based on review period.']]],
+['Location analysis',[
+ ['21','CFM<sub>i</sub> = '+'∏<sub>j</sub> CF<sub>ij</sub>','Critical factors are 0/1 — one zero eliminates the site.'],
+ ['22','OFM<sub>i</sub> = '+fr('max cost − cost<sub>i</sub>','max cost − min cost'),'Normalised 0–1; cheapest site gets 1, dearest 0.'],
+ ['23','SFM<sub>i</sub> = '+SUM+' '+v('w<sub>j</sub>')+'·SF<sub>ij</sub>','Weighted subjective scores.'],
+ ['24','LM<sub>i</sub> = CFM<sub>i</sub> × ('+ALPHA+'·OFM<sub>i</sub> + (1−'+ALPHA+')·SFM<sub>i</sub>)','α weighs objective vs subjective.'],
+ ['25','Center of gravity: '+v('x*')+' = '+fr(SUM+' '+v('x<sub>i</sub>w<sub>i</sub>'),SUM+' '+v('w<sub>i</sub>')),'Weighted average — outlier-sensitive.'],
+ ['26',v('y*')+' = '+fr(SUM+' '+v('y<sub>i</sub>w<sub>i</sub>'),SUM+' '+v('w<sub>i</sub>')),'Median method: cumulative weight ≥ half total per axis — outlier-robust (not numbered on the sheet).']]]
+];
+var ZTAB=[['CSL / F(z)','90%','95%','97%','98%','0.8413'],['z','1.28','1.645','1.88–1.89','2.05','1.00']];
+var LTAB=[['z','0','0.5','1.0','1.28','1.645','2.05'],['L(z)','0.399','0.198','0.083','0.047','0.021','0.007']];
+
+/* ---------- render MC ---------- */
+var TOPICS={fc:['Forecasting','t-fc'],inv:['Inventory','t-inv'],net:['Network','t-net'],con:['Contracts','t-con'],pro:['Procurement','t-pro'],int:['Integration','t-int']};
+var answered={}, openPts={};
+function renderMC(){
+  var h='<div class="section-h">Part 1 — Multiple choice (30 × 2 pts)</div>';
+  MC.forEach(function(it,i){
+    h+='<div class="q" id="q'+i+'"><div class="qhead"><span class="qnr">Q'+(i+1)+'</span><span class="pts">2 pts</span><span class="topic '+TOPICS[it.topic][1]+'">'+TOPICS[it.topic][0]+'</span></div>';
+    h+='<div class="qtext">'+it.q+'</div>';
+    it.opts.forEach(function(o,j){h+='<button class="opt" id="q'+i+'o'+j+'" onclick="pick('+i+','+j+')">'+String.fromCharCode(65+j)+'. '+o+'</button>';});
+    h+='<div class="expl" id="e'+i+'"><b>Model answer.</b> '+it.expl+'</div></div>';
+  });
+  document.getElementById('mcArea').innerHTML=h;
+}
+function pick(i,j){
+  if(answered[i]!==undefined) return;
+  answered[i]=j;
+  var c=MC[i].correct;
+  for(var k=0;k<4;k++){var el=document.getElementById('q'+i+'o'+k);el.classList.add('dim');if(k===c)el.classList.add('correct');}
+  if(j!==c)document.getElementById('q'+i+'o'+j).classList.add('incorrect');
+  document.getElementById('q'+i+'o'+j).classList.remove('dim');
+  document.getElementById('e'+i).style.display='block';
+  updateScore();
+}
+/* ---------- render OPEN ---------- */
+function renderOpen(){
+  var h='<div class="section-h">Part 2 — Open questions (20 pts) — write your answer first, then reveal &amp; self-score</div>';
+  OPEN.forEach(function(c,ci){
+    h+='<div class="q"><div class="qhead"><span class="qnr">'+c.title+'</span></div><div class="case">'+c.intro+'</div>';
+    c.parts.forEach(function(p,pi){
+      var id='o'+ci+'_'+pi;
+      h+='<div style="margin-top:.9rem"><b style="color:var(--accent)">'+p.nr+'</b> <span class="pts">'+p.pts+' pts</span><div class="qtext" style="margin-top:.3rem">'+p.q+'</div>';
+      h+='<textarea placeholder="Your answer — formula number, parameters, substitution, final answer…"></textarea>';
+      h+='<button class="btn sec" onclick="reveal(\''+id+'\')">Show model answer &amp; rubric</button>';
+      h+='<div class="model" id="'+id+'"><h4>Model answer</h4>'+p.model+'<div class="rubric"><b style="font-size:.85rem">Score yourself:</b>';
+      p.rubric.forEach(function(r,ri){h+='<label><input type="checkbox" onchange="openScore(\''+id+'\','+ri+','+r[1]+',this.checked)"> '+r[0]+' <b style="color:var(--green)">(+'+r[1]+')</b></label>';});
+      h+='</div></div></div>';
+    });
+    h+='</div>';
+  });
+  document.getElementById('openArea').innerHTML=h;
+}
+function reveal(id){var m=document.getElementById(id);m.style.display=m.style.display==='block'?'none':'block';}
+function openScore(id,ri,pts,on){openPts[id+'_'+ri]=on?pts:0;updateScore();}
+/* ---------- formula sheet ---------- */
+function renderSheet(){
+  var h='';
+  SHEET.forEach(function(sec){
+    h+='<h3>'+sec[0]+'</h3>';
+    sec[1].forEach(function(f){h+='<div class="frow"><span class="fnum">['+f[0]+']</span><div><div class="fbody">'+f[1]+'</div><div class="fnote">'+f[2]+'</div></div></div>';});
+  });
+  h+='<h3>Table A — common z-values</h3><table class="ztab">';
+  ZTAB.forEach(function(r){h+='<tr>'+r.map(function(x,i){return (i===0?'<th>':'<td>')+x+(i===0?'</th>':'</td>');}).join('')+'</tr>';});
+  h+='</table><h3>Table B — standard normal loss function L(z)</h3><table class="ztab">';
+  LTAB.forEach(function(r){h+='<tr>'+r.map(function(x,i){return (i===0?'<th>':'<td>')+x+(i===0?'</th>':'</td>');}).join('')+'</tr>';});
+  h+='</table><div class="notice" style="margin-top:1rem">Exam answer format for every calculation: <b>(1)</b> name the formula + sheet number, <b>(2)</b> list parameters with units, <b>(3)</b> substitute, <b>(4)</b> final answer with sensible rounding. Scope notes from the course team: no (s,S) <i>calculations</i> (principles yes), no transportation model, no pay-back/cost-sharing calculations.</div>';
+  document.getElementById('sheetArea').innerHTML=h;
+}
+/* ---------- score & results ---------- */
+function updateScore(){
+  var mc=0;Object.keys(answered).forEach(function(i){if(answered[i]===MC[i].correct)mc+=2;});
+  var op=0;Object.keys(openPts).forEach(function(k){op+=openPts[k];});
+  document.getElementById('mcScore').textContent=mc;
+  document.getElementById('openScore').textContent=op;
+  var tot=mc+op;
+  document.getElementById('totScore').textContent=tot+' / 80';
+  var pct=tot/80*100;
+  var g=(1+9*tot/80).toFixed(1);
+  document.getElementById('grade').innerHTML='≈ '+pct.toFixed(0)+'% — indicative grade <b style="color:'+(g>=5.5?'var(--green)':'var(--red)')+'">'+g+'</b> (answered: '+Object.keys(answered).length+'/30 MC)';
+  renderTopics();renderReview();
+}
+function renderTopics(){
+  var agg={};Object.keys(TOPICS).forEach(function(t){agg[t]=[0,0];});
+  MC.forEach(function(q,i){agg[q.topic][1]+=2;if(answered[i]===q.correct)agg[q.topic][0]+=2;});
+  var h='';
+  Object.keys(TOPICS).forEach(function(t){
+    var a=agg[t],p=a[1]?Math.round(a[0]/a[1]*100):0;
+    h+='<div class="tline"><span>'+TOPICS[t][0]+'</span><span>'+a[0]+' / '+a[1]+'</span></div><div class="bar"><i style="width:'+p+'%"></i></div>';
+  });
+  document.getElementById('topicArea').innerHTML=h;
+}
+function renderReview(){
+  var wrong=[];Object.keys(answered).forEach(function(i){if(answered[i]!==MC[i].correct)wrong.push(+i);});
+  var h;
+  if(Object.keys(answered).length===0){h='Answer questions to populate this list.';}
+  else if(wrong.length===0){h='<span style="color:var(--green)">No MC errors so far — keep going.</span>';}
+  else{h='<b style="color:var(--red)">Missed ('+wrong.length+'):</b> '+wrong.map(function(i){return '<a href="#q'+i+'" style="color:var(--accent)">Q'+(i+1)+'</a> ('+TOPICS[MC[i].topic][0]+')';}).join(' · ')+'<br><br>Re-read the model answers, then hit the matching section in the Crash Pack PDF.';}
+  document.getElementById('reviewArea').innerHTML=h;
+}
+/* ---------- tabs & timer ---------- */
+function showTab(t){
+  ['exam','sheet','results'].forEach(function(x){
+    document.getElementById('tab-'+x).style.display=(x===t)?'block':'none';
+    document.querySelector('.tab[data-tab='+x+']').classList.toggle('active',x===t);
+  });
+  if(t==='results')updateScore();
+  window.scrollTo(0,0);
+}
+var tLeft=150*60,tInt=null;
+function toggleTimer(){
+  var b=document.getElementById('timerBtn');
+  if(tInt){clearInterval(tInt);tInt=null;b.textContent='Resume';return;}
+  b.textContent='Pause';
+  tInt=setInterval(function(){
+    tLeft--;if(tLeft<=0){clearInterval(tInt);tLeft=0;alert('Time is up — pens down! Check your score under Results.');}
+    var h=Math.floor(tLeft/3600),m=Math.floor(tLeft%3600/60),s=tLeft%60;
+    document.getElementById('timer').textContent=h+':'+String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+    if(tLeft<15*60)document.getElementById('timerChip').classList.add('warn');
+  },1000);
+}
+renderMC();renderOpen();renderSheet();
+</script>
+</body>
+</html>
